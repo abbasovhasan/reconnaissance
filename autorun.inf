@@ -1,0 +1,6 @@
+[autorun]
+label=SafeNetUSB
+icon=hat.ico
+action=Run SafeNet PowerShell Script
+open=StartScript.bat
+useautoplay=1
