@@ -1,30 +1,46 @@
-# Recon Tool (Simple)
+# Reconnaissance and Data Collection Agent
 
-A small reconnaissance toolset. Python scripts were packaged into a Windows executable with PyInstaller. The executable runs a PowerShell (`.ps1`) helper/script as part of its workflow.
+This repository contains a set of scripts and binaries designed to perform system reconnaissance and collect data for security analysis. The collected information is exfiltrated to a central web application where it is processed and analyzed by an AI engine to assign a security score.
 
-> **Note:** This repository contains tools intended for authorized security testing and learning. Do **not** use them on systems you do not own or do not have explicit permission to test.
+## Key Components and Functionality
 
-## What it does
-- Runs pre-built reconnaissance scripts (Python → PyInstaller → .exe).
-- Triggers a PowerShell helper script (`.ps1`) when executed.
-- Collects basic target information (configurable within the scripts).
+The core functionality is centered around:
 
-## Requirements
-- Windows 10/11 (or compatible Windows host)
-- PowerShell (built-in)
-- If you want to rebuild from source:
-  - Python 3.8+ installed
-  - PyInstaller
-  - Any Python dependencies listed in the script(s)
+1.  **Persistence Mechanism:** Ensuring the agent runs upon system start or trigger.
+2.  **Reconnaissance Scripts:** Collecting detailed system and network intelligence.
+3.  **Data Exfiltration:** Securely transmitting collected data to the web server for AI analysis.
 
-## Usage
-1. **Run the packaged executable** (recommended):
-   - Double-click the `.exe` or run from command line:
-     ```powershell
-     .\recon-tool.exe
-     ```
-   - The EXE will call the included PowerShell script as needed.
+### Persistence Mechanism
 
-2. **Run the PowerShell script directly** (if needed):
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File .\helper-script.ps1
+| File Name | Description |
+| :--- | :--- |
+| `autorun.py` | The main Python source script for the agent logic. |
+| `autorun.spec` | Specification file used by PyInstaller to bundle the script. |
+| `autorun.exe` | The compiled Windows executable version of the agent. |
+| `autorun.inf` | Configuration file, typically used on removable media for auto-execution, demonstrating a common persistence method. |
+
+**Example Flow:** The `autorun.exe` (compiled from `autorun.py`) is configured to run automatically. Upon execution, it performs its primary function, such as triggering the data collection scripts. *As a demonstration, the current `autorun.py` is configured to run the `script_event_logs.ps1` file.*
+
+### Reconnaissance PowerShell Scripts (`*.ps1`)
+
+Each PowerShell script is meticulously designed to execute a specific reconnaissance task, gathering a piece of intelligence about the host machine:
+
+| File Name | Reconnaissance Function |
+| :--- | :--- |
+| `script_browser_data.ps1` | Collects data from web browsers (e.g., history, cookies, credentials, depending on implementation). |
+| `script_network_dhcp.ps1` | Collects current DHCP and network configuration information. |
+| `script_network_dns.ps1` | Gathers DNS-related data, such as local DNS cache entries. |
+| `script_event_logs.ps1` | Collects and filters critical Windows Event Log entries for security analysis. |
+| `script_file_metadata.ps1` | Extracts file metadata from specific system directories or files. |
+| `script_running_processes.ps1` | Gathers a list of all currently running processes and their properties. |
+| `script_telemetry.ps1` | Collects general system or usage telemetry for behavioral analysis. |
+| `script_usb_history.ps1` | Enumerates historical or currently connected USB devices. |
+
+### Data Management and Analysis
+
+| File Name | Description |
+| :--- | :--- |
+| `sqlite3.exe` | A lightweight, self-contained database engine used as a dependency to temporarily manage or aggregate the collected reconnaissance data before exfiltration. |
+
+**AI Analysis & Scoring:**
+The combined data from all reconnaissance files is securely sent to our central web platform. On the server side, an **Artificial Intelligence (AI)** engine analyzes this data. The AI scores the system's security posture and flags potential threats, with the final score and findings displayed within the web application.
